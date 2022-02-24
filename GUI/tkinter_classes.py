@@ -2,7 +2,13 @@ import math as m
 from tkinter import *
 from tkinter import ttk
 from xml.dom.minidom import Attr
-
+def avgpts(pts):
+	x = []
+	y = []
+	for i in pts:
+		x.append(i[0])
+		y.append(i[1])
+	return (m.floor(sum(x)/len(x)),m.floor(sum(y)/len(x)))
 
 def p3d(x,y,z,depth_scaling = True):
 	"""
@@ -36,18 +42,22 @@ class DataBlock(Frame):
 		p = [
 			(x,y),
 			(x+w,y),
-			(x+w,y+h),
-			(x,y+h)
+			(x,y+h),
+			(x+w,y+h)
 		]
 		p2 = [
 			p3d(x,y,d),
 			p3d(x+w,y,d),
-			p3d(x+w,y+h,d),
-			p3d(x,y+h,d)
+			p3d(x,y+h,d),
+			p3d(x+w,y+h,d)
+			
 		]
 		canvas.create_polygon([p[0],p[1],p2[1],p2[0]],fill = self.f, outline = self.o) #Top face
-		canvas.create_polygon([p[0],p2[0],p2[3],p[3]],fill = self.f, outline = self.o)# Left Face
-		canvas.create_rectangle(p2[0],p2[2], fill = self.f, outline=self.o)
+
+		canvas.create_polygon([p[0],p2[0],p2[2],p[2]],fill = self.f, outline = self.o)# Left Face
+		m = avgpts([p[0], p2[0], p[2],p2[2]])
+		canvas.create_text(m[0],m[1],text = str(d))
+		canvas.create_rectangle(p2[0],p2[3], fill = self.f, outline=self.o)
 
 
 
