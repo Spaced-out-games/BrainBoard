@@ -18,13 +18,7 @@ class Sketchpad(Canvas):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, **kwargs)
 
-root = Tk()
-root.columnconfigure(0, weight=1)
-root.rowconfigure(0, weight=1)
+window = Tk() #Create tkinter window element
+window.geometry("500 x 500 + 0 + 0")
 
-sketch = Sketchpad(root)
-sketch.grid(column=0, row=0, sticky=(N, W, E, S))
-
-root.mainloop()
-
-#new, for test
+window.mainloop()
