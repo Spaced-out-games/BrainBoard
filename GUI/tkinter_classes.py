@@ -1,9 +1,10 @@
 from tkinter import *
 from tkinter import ttk
-
+from general import avgpts, p3d
 class Viewport(Canvas):
 	def __init__(self, parent, **kwargs):
 		super().__init__(parent, **kwargs)
+		self.grid(column=0, row=0, sticky=(N, W, E, S))
 		"""
 		Button Bindings go here
 		format:
@@ -12,8 +13,9 @@ class Viewport(Canvas):
 	
 
 class FileOpener(Frame):
-	def __init__(self,parent = canvas):
+	def __init__(self,parent = Canvas, pos = (0,0)):
 		Frame.__init__(self, parent)
+		self.pos = pos
 		self.parent = parent
 		#Default Class attributes
 		self.input = None#Input data, from block A 
@@ -21,8 +23,15 @@ class FileOpener(Frame):
 		self.input_node = None #Another Block reference
 		self.output_node = None #Another Block reference
 		"""																		EDITS GO BELOW															"""
-		self.block
-
+		x,y = pos
+		parent.create_polygon(
+			[
+				(x,y),
+				(x+20,y),
+				(x+20,y+20),
+				(x,y+20)
+			]
+		)
 
 
 
@@ -60,4 +69,11 @@ class FileOpener(Frame):
 
 if __name__ ==  "__main__":
 	window = Tk()
+	window.columnconfigure(0, weight=1)
+	window.rowconfigure(0, weight=1)
 	canvas = Viewport(window)
+	#FileOpener(canvas).place(x=0,y=0, relwidth=1,relheight=1)
+	canvas.create_rectangle([(0,0),(20,20)])
+	window.mainloop()
+
+
