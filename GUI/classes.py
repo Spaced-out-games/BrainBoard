@@ -7,16 +7,19 @@ This file defines the default block class. GUI class elements inherit these valu
 """
 class Block:
 	def __init__(self):
-		"""
-		Block A output -->  Block B input --> Block B processing --> Block B Output --> Block C input...
-		Only __init__ and __proc__ should be changed from this master class
-
-		This class sets up the connections between I/O nodes.
-		"""
+		#Default Class attributes
 		self.input = None#Input data, from block A 
 		self.output = None#Output data, for block C
 		self.input_node = None #Another Block reference
 		self.output_node = None #Another Block reference
+		"""																		EDITS GO BELOW															"""
+
+
+
+
+
+		"""																		EDITS GO ABOVE															"""
+
 	def __recv__(self):
 		if self.input!= None and self.input_node != None:
 			self.input = (self.input_node).output
@@ -34,3 +37,10 @@ class Block:
 		#...do some processing in respect to x
 		self.output = x
 		self.__send__()
+		"""																		EDITS GO BELOW															"""
+
+
+
+
+
+		"""																		EDITS GO ABOVE															"""
