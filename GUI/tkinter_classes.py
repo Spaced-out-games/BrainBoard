@@ -19,6 +19,6 @@ class Sketchpad(Canvas):
         super().__init__(parent, **kwargs)
 
 window = Tk() #Create tkinter window element
-window.geometry("500 x 500 + 0 + 0")
+window.geometry("500x500+0+0")
 
 window.mainloop()
