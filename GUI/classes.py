@@ -6,8 +6,9 @@ from ctypes import pointer, POINTER
 This file defines the default block class. GUI class elements inherit these values, always. This file is unlikely to be used much
 """
 class Block:
-	def __init__(self, parent):
+	def __init__(self, parent: Canvas):
 		Frame.__init__(self, parent)
+		self.parent = parent
 		#Default Class attributes
 		self.input = None#Input data, from block A 
 		self.output = None#Output data, for block C
@@ -45,3 +46,5 @@ class Block:
 
 
 		"""																		EDITS GO ABOVE															"""
+	def __draw__(self):
+		c = self.parent

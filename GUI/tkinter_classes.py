@@ -1,9 +1,20 @@
 from tkinter import *
 from tkinter import ttk
 
+class Viewport(Canvas):
+	def __init__(self, parent, **kwargs):
+		super().__init__(parent, **kwargs)
+		"""
+		Button Bindings go here
+		format:
+		self.bind("<button-code>", self.method)
+		"""
+	
+
 class FileOpener(Frame):
 	def __init__(self,parent):
 		Frame.__init__(self, parent)
+		self.parent = parent
 		#Default Class attributes
 		self.input = None#Input data, from block A 
 		self.output = None#Output data, for block C
@@ -41,3 +52,6 @@ class FileOpener(Frame):
 
 
 		"""																		EDITS GO ABOVE															"""
+	def __draw__(self):
+		c = self.parent
+
