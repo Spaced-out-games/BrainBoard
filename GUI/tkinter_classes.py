@@ -12,7 +12,7 @@ class Viewport(Canvas):
 	
 
 class FileOpener(Frame):
-	def __init__(self,parent):
+	def __init__(self,parent = canvas):
 		Frame.__init__(self, parent)
 		self.parent = parent
 		#Default Class attributes
@@ -21,7 +21,7 @@ class FileOpener(Frame):
 		self.input_node = None #Another Block reference
 		self.output_node = None #Another Block reference
 		"""																		EDITS GO BELOW															"""
-
+		self.block
 
 
 
@@ -53,5 +53,11 @@ class FileOpener(Frame):
 
 		"""																		EDITS GO ABOVE															"""
 	def __draw__(self):
+		"""
 		c = self.parent
+		c.create_rectangle([(0,0),(20,20)])
+		"""
 
+if __name__ ==  "__main__":
+	window = Tk()
+	canvas = Viewport(window)
