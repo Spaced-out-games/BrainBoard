@@ -1,8 +1,9 @@
 from tkinter import *
 from tkinter import ttk
 
-class Block:
-	def __init__(self):
+class FileOpener(Frame):
+	def __init__(self,parent):
+		Frame.__init__(self, parent)
 		#Default Class attributes
 		self.input = None#Input data, from block A 
 		self.output = None#Output data, for block C

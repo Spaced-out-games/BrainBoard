@@ -6,7 +6,8 @@ from ctypes import pointer, POINTER
 This file defines the default block class. GUI class elements inherit these values, always. This file is unlikely to be used much
 """
 class Block:
-	def __init__(self):
+	def __init__(self, parent):
+		Frame.__init__(self, parent)
 		#Default Class attributes
 		self.input = None#Input data, from block A 
 		self.output = None#Output data, for block C
