@@ -13,7 +13,7 @@ class Viewport(Canvas):
 	
 
 class FileOpener(Frame):
-	def __init__(self,parent = Canvas, pos = (0,0)):
+	def __init__(self,parent = Canvas, pos = (100,100)):
 		Frame.__init__(self, parent)
 		self.pos = pos
 		self.parent = parent
@@ -24,16 +24,20 @@ class FileOpener(Frame):
 		self.output_node = None #Another Block reference
 		"""																		EDITS GO BELOW															"""
 		x,y = pos
-		parent.create_polygon(
+		self.canvas = Canvas(self.master)
+		self.canvas.grid(column=0, row=0, sticky=(N, W, E, S))
+		self.canvas.create_polygon(
 			[
-				(x,y),
+				(x,y+5),
+				(x+5,y),
 				(x+20,y),
-				(x+20,y+20),
-				(x,y+20)
-			]
+				(x+20,y+30),
+				(x,y+30),
+				(x,y+5)
+
+			],
+			tags = ['draggable'],
 		)
-
-
 
 		"""																		EDITS GO ABOVE															"""
 
@@ -72,8 +76,7 @@ if __name__ ==  "__main__":
 	window.columnconfigure(0, weight=1)
 	window.rowconfigure(0, weight=1)
 	canvas = Viewport(window)
-	#FileOpener(canvas).place(x=0,y=0, relwidth=1,relheight=1)
-	canvas.create_rectangle([(0,0),(20,20)])
+	FileOpener(canvas).place(x=0,y=0, relwidth=1,relheight=1)
 	window.mainloop()
 
 
