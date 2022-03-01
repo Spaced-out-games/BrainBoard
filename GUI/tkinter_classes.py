@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import ttk
 from general import avgpts, p3d
+from PIL import Image, ImageTk
+
 class Viewport(Canvas):
 	def __init__(self, parent, **kwargs):
 		super().__init__(parent, **kwargs)
@@ -26,7 +28,11 @@ class FileOpener(Frame):
 		x,y = pos
 		self.canvas = Canvas(self.master)
 		self.canvas.grid(column=0, row=0, sticky=(N, W, E, S))
-
+		self.scale = 10.0
+		#self.img = ImageTk.PhotoImage(Image.open("Untitled-1.png"))
+		#self.canvas.create_image(0,0,image = self.img)
+		self.draw()
+		"""
 		#File shape
 		self.canvas.create_line([(x+5,y),(x+5,y+5),(x,y+5),(x,y+30),(x+20,y+30),(x+20,y),(x+5,y),(x,y+5)],tags = ['draggable'])
 		#Scribble lines
@@ -34,6 +40,7 @@ class FileOpener(Frame):
 		self.canvas.create_line([(x+5,y+15),(x+15,y+15)],tags = ['draggable'])
 		self.canvas.create_line([(x+5,y+20),(x+15,y+20)],tags = ['draggable'])
 		self.canvas.create_line([(x+5,y+25),(x+15,y+25)],tags = ['draggable'])
+		"""
 		"""																		EDITS GO ABOVE															"""
 
 	def __recv__(self):
@@ -60,7 +67,14 @@ class FileOpener(Frame):
 
 
 		"""																		EDITS GO ABOVE															"""
-	def __draw__(self):
+	def draw(self):
+		image = Image.open("Untitled-1.png")
+		w,h = image.width,image.height
+		w,h = int(w * self.scale),int(h * self.scale)
+		image = image.resize((w,h))
+
+		self.img = ImageTk.PhotoImage(image)
+		self.canvas.create_image(0,0,image = self.img)
 		"""
 		c = self.parent
 		c.create_rectangle([(0,0),(20,20)])
