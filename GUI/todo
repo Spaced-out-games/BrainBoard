@@ -1,0 +1,7 @@
+-bind torch.nn networks to independent nodes
+
+-numpy.ndarray, pd.DataFrame, and torch.tensor convesion nodes
+
+-data visualizations (photos, videos, )
+
+-add GUI
