@@ -37,10 +37,12 @@ class FileOpener(Frame):
 		self.frame.place(x=0,y=0)
 		self.canvas = Canvas(self.frame)
 		self.canvas.grid(column=0, row=0, sticky=(N, W, E, S))
+		self.button = Button(master = self.frame,image=)
 		make_draggable(self.canvas)
 		#w,h = image.width,image.height
 		#w,h = int(w * self.scale),int(h * self.scale)
 		#image = image.resize((w,h))
+		
 		"""
 		Creating an image, and drawing it on frame
 		image = Image.open("Untitled-1.png")
@@ -66,11 +68,12 @@ class FileOpener(Frame):
 		else:
 			pass
 	def __proc__(self, **kwargs):
-		args = kwargs
 		self.recv()
 		x = self.input
 		#...do some processing in respect to x
-		self.output = x
+		file = open(x)
+		#file proccessing done here
+		self.output = file
 		self.__send__()
 		"""																		EDITS GO BELOW															"""
 
@@ -82,5 +85,5 @@ class FileOpener(Frame):
 if __name__ ==  "__main__":
 	window = Tk()
 	canvas = Canvas(window)
-	b = Block(window)
+	b = FileOpener(window)
 	window.mainloop()
