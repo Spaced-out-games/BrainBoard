@@ -73,18 +73,8 @@ class Block(Frame):
 
 
 		"""																		EDITS GO ABOVE															"""
-main = Tk()
-canvas = Canvas(main)
-b = Block(main)
-
-"""
-image = Image.open("Untitled-1.png")
-w,h = image.width,image.height
-w,h = int(w * self.scale),int(h * self.scale)
-image = image.resize((w,h))
-self.img = ImageTk.PhotoImage(image)
-self.canvas.create_image(0,0,image = self.img,anchor = NW)
-"""
-#image =  ImageTk.PhotoImage(file = "Untitled-1.png")
-#Label(main, image=image).pack()
-main.mainloop()
+if __name__ ==  "__main__":
+	main = Tk()
+	canvas = Canvas(main)
+	b = Block(main)
+	main.mainloop()
