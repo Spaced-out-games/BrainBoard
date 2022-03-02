@@ -21,7 +21,9 @@ def on_drag_motion(event):
     x = widget.winfo_x() - widget._drag_start_x + event.x
     y = widget.winfo_y() - widget._drag_start_y + event.y
     widget.place(x=x, y=y)
-
+class Pin(Frame):
+	def __init__(self, parent):
+		self.canvas = Canvas(parent)
 
 
 class FileOpener(Frame):
@@ -37,18 +39,18 @@ class FileOpener(Frame):
 		self.frame.place(x=0,y=0)
 		self.canvas = Canvas(self.frame)
 		self.canvas.grid(column=0, row=0, sticky=(N, W, E, S))
-		self.button = Button(master = self.frame,image=)
+		self.button = Button(master = self.frame)
 		make_draggable(self.canvas)
 		#w,h = image.width,image.height
 		#w,h = int(w * self.scale),int(h * self.scale)
 		#image = image.resize((w,h))
 		
-		"""
-		Creating an image, and drawing it on frame
+		#"""
+		#Creating an image, and drawing it on frame
 		image = Image.open("Untitled-1.png")
 		self.img = ImageTk.PhotoImage(image)
 		self.canvas.create_image(0,0,image = self.img,anchor = NW,tags = "image")
-		"""
+		#"""
 		"""																		EDITS GO BELOW															"""
 
 
@@ -86,4 +88,5 @@ if __name__ ==  "__main__":
 	window = Tk()
 	canvas = Canvas(window)
 	b = FileOpener(window)
+	
 	window.mainloop()
