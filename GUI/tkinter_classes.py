@@ -4,9 +4,11 @@ from general import avgpts, p3d
 from PIL import Image, ImageTk
 
 global_scale = 1
+widgets = [] # list of all drag-drop widgets
 
 def make_draggable(widget):
     widget.bind("<Button-1>", on_drag_start)
+
     widget.bind("<B1-Motion>", on_drag_motion)
 
 def on_drag_start(event):
@@ -19,7 +21,10 @@ def on_drag_motion(event):
     x = widget.winfo_x() - widget._drag_start_x + event.x
     y = widget.winfo_y() - widget._drag_start_y + event.y
     widget.place(x=x, y=y)
-class Block(Frame):
+
+
+
+class FileOpener(Frame):
 	def __init__(self, parent):
 		#super().__init__(self, parent)
 		self.parent = parent
@@ -33,14 +38,15 @@ class Block(Frame):
 		self.canvas = Canvas(self.frame)
 		self.canvas.grid(column=0, row=0, sticky=(N, W, E, S))
 		make_draggable(self.canvas)
-		image = Image.open("Untitled-1.png")
 		#w,h = image.width,image.height
 		#w,h = int(w * self.scale),int(h * self.scale)
 		#image = image.resize((w,h))
+		"""
+		Creating an image, and drawing it on frame
+		image = Image.open("Untitled-1.png")
 		self.img = ImageTk.PhotoImage(image)
 		self.canvas.create_image(0,0,image = self.img,anchor = NW,tags = "image")
-		#self.canvas.delete()
-
+		"""
 		"""																		EDITS GO BELOW															"""
 
 
@@ -74,7 +80,7 @@ class Block(Frame):
 
 		"""																		EDITS GO ABOVE															"""
 if __name__ ==  "__main__":
-	main = Tk()
-	canvas = Canvas(main)
-	b = Block(main)
-	main.mainloop()
+	window = Tk()
+	canvas = Canvas(window)
+	b = Block(window)
+	window.mainloop()
