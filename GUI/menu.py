@@ -1,6 +1,5 @@
 '''													Example of menus												'''
 from Tkinter import *
-
 def donothing():
    x = 0
    
