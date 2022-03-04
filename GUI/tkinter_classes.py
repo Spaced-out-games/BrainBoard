@@ -1,7 +1,9 @@
+from pydoc import visiblename
 from tkinter import *
 from tkinter import ttk
 from general import avgpts, p3d
 from PIL import Image, ImageTk
+import math as m
 
 global_scale = 1
 widgets = {
@@ -53,11 +55,15 @@ class FileOpener(Frame):
         self.output = None  # Output data, for block C
         self.input_node = None  # Another Block reference
         self.output_node = None  # Another Block reference
-        self.frame = Frame(parent)
+        self.frame = Frame(parent,width=100,height = 1000)
+        self.frame.pack()
         self.frame.place(x=0, y=0)
         self.canvas = Canvas(self.frame)
         self.canvas.grid(column=0, row=0, sticky=(N, W, E, S))
+        self.canvas.config(width=1000,height = 1000)
+        #self.canvas.pack()
         self.button = Button(master=self.frame)
+        self.native_image_size = (148,226)
         make_draggable(self.canvas)
         #w,h = image.width,image.height
         #w,h = int(w * self.scale),int(h * self.scale)
@@ -65,10 +71,14 @@ class FileOpener(Frame):
 
         # """
         # Creating an image, and drawing it on frame
+        #canvas size = (290,205)
+        scale = 0.5
+        self.image_size = (m.floor(self.native_image_size[0] * scale), m.floor(self.native_image_size[1] * scale))
+
         image = Image.open("Untitled-1.png")
-        #self.dimensions = (148,226)
-        image = image.resize((10,10))
+        image = image.resize(self.image_size)
         self.img = ImageTk.PhotoImage(image)
+
         self.canvas.create_image(0, 0, image=self.img, anchor=NW, tags="image")
         self.canvas.create_oval(0,0,5,5,outline="#ff0000" )
         # """
@@ -102,8 +112,7 @@ class FileOpener(Frame):
 class Application(Frame, Tk):
     def __init__(self, master):
         super().__init__(master)
-        self.canvas = Canvas(master)
-        self.pack()
+        #self.canvas = Canvas(master)
         # Menus
         self.menubar = Menu(master)  # maybe master insteas of self
         self.filemenu = Menu(self.menubar, tearoff=0)
@@ -149,10 +158,12 @@ if __name__ ==  "__main__":
 if __name__ == "__main__":
     window = Tk()
     window.geometry("1024x768")
-    window.columnconfigure(0, weight=1)
-    window.rowconfigure(0, weight=1)
+    window.columnconfigure(8, weight=8)
+    window.rowconfigure(8, weight=1)
     app = Application(window)
-    window.config(menu=app.menubar)
+    app.config(width = 100,height = 100)
+    app.pack()
+    #window.config(menu=app.menubar)
     window.mainloop()
 
     
