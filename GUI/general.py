@@ -16,3 +16,5 @@ def p3d(x,y,z,depth_scaling = True):
 	else:
 		d=z
 	return (x+d,y+d)
+def avg(a,b):
+	return (a+b)<<1
