@@ -1,11 +1,8 @@
 from tkinter import *
-from tkinter import ttk,PhotoImage
+from tkinter import ttk
 import tkinter
-from PIL import Image, ImageTk
+from PIL import Image,ImageTk
 
-images = {
-	"file": None
-}
 
 from matplotlib import container
 def f():
@@ -29,32 +26,36 @@ class Application(Tk):
 		self.toolbar.place(anchor = NW,relx=0,rely=0,relwidth = 0.9,relheight = 0.15)
 
 		#Canvas frame
-		self.cf = Frame(master,bg="#0000FF",padx=0,pady=0)
-		self.cf.place(anchor = NW,relx=0.05,rely=0.15,relwidth=0.85,relheight=0.7)
+		#self.cf = Frame(master,bg="#0000FF",padx=0,pady=0)
+		#self.cf.place(anchor = NW,relx=0.05,rely=0.15,relwidth=0.85,relheight=0.7)
 
 		#toolbar menu
 		self.toolbar= Frame(master,bg="#00FF00",padx=0,pady=0)
-		self.toolbar.place(anchor = NW,relx=0.00,rely=0.15,relwidth=0.05,relheight=0.7)
-
-		b1 = Button(
-			self.toolbar,
-			compound=LEFT,
-			text = "LSTM layer",
-			command = f,
-		)
-		b1.pack(side=LEFT, padx = 0,pady = 0)
+		self.toolbar.place(anchor = NW,relx=0.00,rely=0.15,relwidth=0.5,relheight=0.7)
+		
+		#fileicon = fileicon.subsample()
+		self.buttons = {
+			"file":Button(master=self.toolbar,image=images.get("file"), compound=LEFT)
+		}
+		k = list(self.buttons.keys())
+		for i in k:
+			c= self.buttons.get(i)
+			c.pack(side=LEFT)
 
 		
 
 		
-
 
 
 if __name__ == "__main__":
-    window = Tk()
-    window.geometry("1360x768")
-    app = Application(window)
-    window.mainloop()
+	window = Tk()
+	#Image initializaton (Needs to be after Tk() is created)
+	images = {
+		"file":Image(fp="GUI/file_img.png")
+	}
+	window.geometry("1360x768")
+	app = Application(window)
+	window.mainloop()
 
 
 
