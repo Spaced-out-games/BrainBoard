@@ -1,18 +1,37 @@
+from genericpath import exists
 from tkinter import *
 from tkinter import ttk
 import tkinter
 from PIL import Image,ImageTk
+from jinja2 import is_undefined
 from general import create_img
 bordercolor = "#888888"
 windowcolor = "#aaaaaa"
 
-from matplotlib import container
 def f(event = None):
 	print("called!")
+
+
+frames = 0
+lastw = 0
+lasth = 0
 #Tkinter Sub-process:
 def task():
 	#do some stuff
-	print("test")
+	global frames,lastw,lasth
+	if frames == 0:
+		lastw = window.winfo_width()
+		lasth = window.winfo_height()
+	else:
+		if lastw != window.winfo_width() or lasth != window.winfo_height():
+			#react
+			#app.tc.move("FO",0,0)
+			pass
+
+	lastw = window.winfo_width()
+	lasth = window.winfo_height()
+	frames = frames + 1
+
 	#schedule next call
 	window.after(1, task)
 class Application(Tk):
@@ -52,7 +71,8 @@ class Application(Tk):
 
 		self.FO_i = create_img(fp=r"GUI/file_img.png",scale = 0.5)
 		self.FO_b = self.tc.create_image((50,50),image = self.FO_i,tags = ['FO'])
-		self.tc.moveto("FO",0,0)
+		self.tc.move("FO",0,0)
+		
 
 		self.tc.tag_bind(self.FO_b, "<Button-1>",self.test)
 	def test(self, event):
