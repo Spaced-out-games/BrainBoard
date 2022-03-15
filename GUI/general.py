@@ -21,5 +21,5 @@ def avg(a,b):
 	return (a+b)<<1
 def create_img(fp, scale):
 	image = Image.open(fp=fp)
-	image.resize((int(image.width*scale),int(image.height*scale))))
+	image.resize((int(image.width*scale),int(image.height*scale)))
 	return ImageTk.PhotoImage(image = image)
