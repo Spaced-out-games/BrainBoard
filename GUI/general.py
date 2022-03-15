@@ -1,4 +1,5 @@
 import math as m
+from PIL import Image, ImageTk
 def avgpts(pts):
 	x = []
 	y = []
@@ -18,3 +19,7 @@ def p3d(x,y,z,depth_scaling = True):
 	return (x+d,y+d)
 def avg(a,b):
 	return (a+b)<<1
+def create_img(fp, scale):
+	image = Image.open(fp=fp)
+	image.resize((int(image.width*scale),int(image.height*scale))))
+	return ImageTk.PhotoImage(image = image)
