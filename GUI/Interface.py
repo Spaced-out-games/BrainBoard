@@ -9,6 +9,12 @@ windowcolor = "#aaaaaa"
 from matplotlib import container
 def f(event = None):
 	print("called!")
+#Tkinter Sub-process:
+def task():
+	#do some stuff
+	print("test")
+	#schedule next call
+	window.after(1, task)
 class Application(Tk):
 	def __init__(self,master):
 		#Menu Bar
@@ -44,10 +50,13 @@ class Application(Tk):
 
 		#This code block creates a clickable canvas button, which calls f() when clicked
 
-		self.FO_i = create_img(r"GUI/file_icon.png",0.5)
-		self.FO_b = self.tc.create_image((50,50),image = self.FO_i)
-		self.tc.tag_bind(self.FO_b, "<Button-1>",f)
-		
+		self.FO_i = create_img(fp=r"GUI/file_img.png",scale = 0.5)
+		self.FO_b = self.tc.create_image((50,50),image = self.FO_i,tags = ['FO'])
+		self.tc.moveto("FO",0,0)
+
+		self.tc.tag_bind(self.FO_b, "<Button-1>",self.test)
+	def test(self, event):
+		print(self.tc.winfo_width())
 
 		
 
@@ -62,6 +71,7 @@ if __name__ == "__main__":
 	file = ImageTk.PhotoImage(file)
 	window.geometry("1360x768")
 	app = Application(window)
+	window.after(1,task)
 	window.mainloop()
 
 

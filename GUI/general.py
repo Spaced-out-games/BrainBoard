@@ -19,7 +19,7 @@ def p3d(x,y,z,depth_scaling = True):
 	return (x+d,y+d)
 def avg(a,b):
 	return (a+b)<<1
-def create_img(fp, scale):
-	image = Image.open(fp=fp)
-	image.resize((int(image.width*scale),int(image.height*scale)))
-	return ImageTk.PhotoImage(image = image)
+def create_img(fp, scale = 1):
+	img = Image.open(fp=fp)
+	img = img.resize((int(img.width*scale),int(img.height*scale)))
+	return ImageTk.PhotoImage(image = img)
