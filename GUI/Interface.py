@@ -20,12 +20,17 @@ def task():
 	#do some stuff
 	global frames,lastw,lasth
 	if frames == 0:
+		#if first frame, set last width and height variables to window width and height
 		lastw = window.winfo_width()
 		lasth = window.winfo_height()
 	else:
 		if lastw != window.winfo_width() or lasth != window.winfo_height():
 			#react
-			#app.tc.move("FO",0,0)
+			w = app.tc.winfo_width()
+			h= app.tc.winfo_height()
+
+			app.tc.moveto(app.FO_b,0,0)
+			
 			pass
 
 	lastw = window.winfo_width()
@@ -68,13 +73,10 @@ class Application(Tk):
 		self.tc.place(anchor = NW,relwidth=1,relheight=1)
 
 		#This code block creates a clickable canvas button, which calls f() when clicked
-
 		self.FO_i = create_img(fp=r"GUI/file_img.png",scale = 0.5)
 		self.FO_b = self.tc.create_image((50,50),image = self.FO_i,tags = ['FO'])
-		self.tc.move("FO",0,0)
-		
 
-		self.tc.tag_bind(self.FO_b, "<Button-1>",self.test)
+		#self.tc.tag_bind(self.FO_b, "<Button-1>",self.test)
 	def test(self, event):
 		print(self.tc.winfo_width())
 
