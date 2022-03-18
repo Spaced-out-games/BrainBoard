@@ -2,34 +2,40 @@ from ast import arguments
 from genericpath import exists
 from inspect import Parameter
 from tkinter import *
-from tkinter import ttk
+from tkinter import ttk,filedialog
 import tkinter
+from turtle import bgcolor
 from PIL import Image,ImageTk
 from jinja2 import is_undefined
+from pygments import highlight
 from general import create_img, keylist
 from pprint import pprint as pprint
+from functools import lru_cache
 bordercolor = "#888888"
 windowcolor = "#aaaaaa"
 f = lambda: None
+num_widgets = 0
 def make_draggable(widget):
-    widget.bind("<Button-1>", on_drag_start)
-    widget.bind("<B1-Motion>", on_drag_motion)
+	widget.bind("<Button-1>", on_drag_start)
+	widget.bind("<B1-Motion>", on_drag_motion)
 def on_drag_start(event):
+	widget = event.widget
+	widget._drag_start_x = event.x
+	widget._drag_start_y = event.y
 	print("pickup")
-    #widget = event.widget
-    #widget._drag_start_x = event.x
-    #widget._drag_start_y = event.y
 def on_drag_motion(event):
 	print("drop")
-    #widget = event.widget
-    #x = widget.winfo_x() - widget._drag_start_x + event.x
-    #y = widget.winfo_y() - widget._drag_start_y + event.y
-    #widget.place(x=x, y=y)
+	widget = event.widget
+	x = widget.winfo_x() - widget._drag_start_x + event.x
+	y = widget.winfo_y() - widget._drag_start_y + event.y
+	widget.place(x=x, y=y)
+	#widget.pack()
 
 
 
 
 class FileOpener(Tk):
+	#@lru_cache(None)
 	def __init__(self, **args):
 		#Note: kwargs has no depth
 		wp = args['WidgetParams']
@@ -41,7 +47,7 @@ class FileOpener(Tk):
 			pady = 0,
 			highlightbackground="red",
 			bg = None,
-			highlightthickness=1
+			highlightthickness=2,
 		)
 		self.f.place(
 			anchor = pp['anchor'],
@@ -52,12 +58,29 @@ class FileOpener(Tk):
 		)
 		self.c = Canvas(
 			master = self.f,
-			bg = None#windowcolor
+			bg = None,
+			width = 36,
+			height = 55,
 		)
-		self.c.place(anchor = NW,relx=0,rely=0,relwidth=1,relheight=1)
-		self.image = self.c.create_image((50,40),image = self.img,anchor = CENTER, tags = ['img'])
-		self.c.tag_bind(self.image, "<Button-1>",on_drag_start)
+		self.c.place(anchor = CENTER,relx=0.5,rely=0.35)
+		global num_widgets
+		self.image = self.c.create_image((20,30),image = self.img,anchor = CENTER, tags = [str(num_widgets)])
+		self.filebutton = Button(master = self.f,text="Open File")#filedialog.askopenfilename()
+		self.filebutton.place(anchor = CENTER, relx=0.5,rely = 0.9)
 		
+		#self.c.tag_bind(self.image,"<Button-1>", on_drag_start)
+		#self.c.tag_bind(self.image,"<B1-Motion>", on_drag_motion)
+		self.f.bind("<Button-1>", on_drag_start)
+		self.f.bind("<B1-Motion>", on_drag_motion)
+		self.bbox()
+
+		self.f.place(
+			anchor = pp['anchor'],
+			x = 100,
+			y = 100,
+			width = 100,
+			height=100
+		)
 
 
 
@@ -75,30 +98,30 @@ class FileOpener(Tk):
 
 
 class TransparentImageButton(Tk):
-    def __init__(self, master, fp= "GUI/file_img.png", function = None,relx = 0, rely = 0, anchor = NW, width = 100, height = 100):
-        self.fp = fp# image filapath
-        c = master['bg']
-        if c == None:
-            c = 'white'
-        self.function = function
-        self.img = create_img(fp = fp, scale = 0.3)
-        self.frame = Frame(
-            master,
-            padx = 5,
-            pady = 5,
-            highlightbackground=c,
-            bg = c,
-            highlightthickness=0,
-        )
-        self.frame.place(anchor = anchor,relx=relx,rely=rely,width=width,height=height)
-        self.canvas = Canvas(
-            self.frame,
-            bg = c,
-            highlightbackground=c
-            )
-        self.canvas.place(anchor = NW,relx=0,rely=0,relwidth=1,relheight=1)
-        self.image = self.canvas.create_image((45,45),image = self.img,anchor = CENTER)
-        self.canvas.tag_bind(self.image, "<Button-1>",self.function)
+	def __init__(self, master, fp= "GUI/file_img.png", function = None,relx = 0, rely = 0, anchor = NW, width = 100, height = 100):
+		self.fp = fp# image filapath
+		c = master['bg']
+		if c == None:
+			c = 'white'
+		self.function = function
+		self.img = create_img(fp = fp, scale = 0.3)
+		self.frame = Frame(
+			master,
+			padx = 5,
+			pady = 5,
+			highlightbackground=c,
+			bg = c,
+			highlightthickness=0,
+		)
+		self.frame.place(anchor = anchor,relx=relx,rely=rely,width=width,height=height)
+		self.canvas = Canvas(
+			self.frame,
+			bg = c,
+			highlightbackground=c
+			)
+		self.canvas.place(anchor = NW,relx=0,rely=0,relwidth=1,relheight=1)
+		self.image = self.canvas.create_image((45,45),image = self.img,anchor = CENTER)
+		self.canvas.tag_bind(self.image, "<Button-1>",self.function)
 
 frames = 0
 def task():
@@ -191,6 +214,7 @@ class Application(Tk):
 
 
 		self.widgets.append(w)
+		num_widgets +=1
 		return w
 	def create_FO(self,event):
 		settings = {# a peek at the default argument structure
