@@ -39,7 +39,7 @@ class FileOpener(Tk):
 		#Note: kwargs has no depth
 		wp = args['WidgetParams']
 		self.img = create_img(fp = "GUI/file_img.png", scale = 0.25)
-		self.fp = ""
+		self.fp = "test"
 		pp = args["PackParams"]
 		self.f = Frame(
 			master = wp['master'],
@@ -54,7 +54,7 @@ class FileOpener(Tk):
 			x = pp['x'],
 			y = pp['y'],
 			width = 100,
-			height=100
+			height=150
 		)
 		self.c = Canvas(
 			master = self.f,
@@ -67,23 +67,19 @@ class FileOpener(Tk):
 		self.filebutton = Button(master = self.f,text="Open File",command = self.dialog)
 		self.filebutton.place(anchor = CENTER, relx=0.5,rely = 0.9)
 
-		self.l = Label(master = self.f, text = self.fp)
+		self.l = Label(master = self.f, text = self.fp,bg = None)
+		self.l.place(anchor = CENTER, relx=0.5,rely = 0.7)
 		#self.c.tag_bind(self.image,"<Button-1>", on_drag_start)
 		#self.c.tag_bind(self.image,"<B1-Motion>", on_drag_motion)
 		self.f.bind("<Button-1>", on_drag_start)
 		self.f.bind("<B1-Motion>", on_drag_motion)
 
-		self.f.place(
-			anchor = pp['anchor'],
-			x = 100,
-			y = 100,
-			width = 100,
-			height=100
-		)
 	def dialog(self):
 		d = filedialog.askopenfilename()
 		print(d)
 		self.fp = d
+		self.l['text'] = d
+		self.l.update()
 
 
 
