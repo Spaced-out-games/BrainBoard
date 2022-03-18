@@ -35,11 +35,11 @@ def on_drag_motion(event):
 
 
 class FileOpener(Tk):
-	#@lru_cache(None)
 	def __init__(self, **args):
 		#Note: kwargs has no depth
 		wp = args['WidgetParams']
 		self.img = create_img(fp = "GUI/file_img.png", scale = 0.25)
+		self.fp = ""
 		pp = args["PackParams"]
 		self.f = Frame(
 			master = wp['master'],
@@ -63,16 +63,15 @@ class FileOpener(Tk):
 			height = 55,
 		)
 		self.c.place(anchor = CENTER,relx=0.5,rely=0.35)
-		global num_widgets
-		self.image = self.c.create_image((20,30),image = self.img,anchor = CENTER, tags = [str(num_widgets)])
-		self.filebutton = Button(master = self.f,text="Open File")#filedialog.askopenfilename()
+		self.image = self.c.create_image((20,30),image = self.img,anchor = CENTER)
+		self.filebutton = Button(master = self.f,text="Open File",command = self.dialog)
 		self.filebutton.place(anchor = CENTER, relx=0.5,rely = 0.9)
-		
+
+		self.l = Label(master = self.f, text = self.fp)
 		#self.c.tag_bind(self.image,"<Button-1>", on_drag_start)
 		#self.c.tag_bind(self.image,"<B1-Motion>", on_drag_motion)
 		self.f.bind("<Button-1>", on_drag_start)
 		self.f.bind("<B1-Motion>", on_drag_motion)
-		self.bbox()
 
 		self.f.place(
 			anchor = pp['anchor'],
@@ -81,6 +80,10 @@ class FileOpener(Tk):
 			width = 100,
 			height=100
 		)
+	def dialog(self):
+		d = filedialog.askopenfilename()
+		print(d)
+		self.fp = d
 
 
 
@@ -214,7 +217,6 @@ class Application(Tk):
 
 
 		self.widgets.append(w)
-		num_widgets +=1
 		return w
 	def create_FO(self,event):
 		settings = {# a peek at the default argument structure
