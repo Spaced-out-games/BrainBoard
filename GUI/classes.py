@@ -29,7 +29,6 @@ class Application(Frame):
 		"""
 class FileOpener(Frame):
 	def __init__(self, parent):
-		#super().__init__(self, parent)
 		self.parent = parent
 		#Default Class attributes
 		self.input = None#Input data, from block A 
@@ -48,9 +47,7 @@ class FileOpener(Frame):
 		
 		#"""
 		#Creating an image, and drawing it on frame
-		image = Image.open("Untitled-1.png")
-		self.img = ImageTk.PhotoImage(image)
-		self.canvas.create_image(0,0,image = self.img,anchor = NW,tags = "image")
+		
 		#"""
 		"""																		EDITS GO BELOW															"""
 

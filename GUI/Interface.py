@@ -1,19 +1,79 @@
 from ast import arguments
 from genericpath import exists
+from inspect import Parameter
 from tkinter import *
 from tkinter import ttk
 import tkinter
 from PIL import Image,ImageTk
 from jinja2 import is_undefined
-from tkinter_classes import make_draggable
-from classes import FileOpener
 from general import create_img, keylist
 from pprint import pprint as pprint
 bordercolor = "#888888"
 windowcolor = "#aaaaaa"
+f = lambda: None
+def make_draggable(widget):
+    widget.bind("<Button-1>", on_drag_start)
+    widget.bind("<B1-Motion>", on_drag_motion)
+def on_drag_start(event):
+	print("pickup")
+    #widget = event.widget
+    #widget._drag_start_x = event.x
+    #widget._drag_start_y = event.y
+def on_drag_motion(event):
+	print("drop")
+    #widget = event.widget
+    #x = widget.winfo_x() - widget._drag_start_x + event.x
+    #y = widget.winfo_y() - widget._drag_start_y + event.y
+    #widget.place(x=x, y=y)
 
-def f(event = None):
-	print("called!")
+
+
+
+class FileOpener(Tk):
+	def __init__(self, **args):
+		#Note: kwargs has no depth
+		wp = args['WidgetParams']
+		self.img = create_img(fp = "GUI/file_img.png", scale = 0.25)
+		pp = args["PackParams"]
+		self.f = Frame(
+			master = wp['master'],
+			padx = 0,
+			pady = 0,
+			highlightbackground="red",
+			bg = None,
+			highlightthickness=1
+		)
+		self.f.place(
+			anchor = pp['anchor'],
+			x = pp['x'],
+			y = pp['y'],
+			width = 100,
+			height=100
+		)
+		self.c = Canvas(
+			master = self.f,
+			bg = None#windowcolor
+		)
+		self.c.place(anchor = NW,relx=0,rely=0,relwidth=1,relheight=1)
+		self.image = self.c.create_image((50,40),image = self.img,anchor = CENTER, tags = ['img'])
+		self.c.tag_bind(self.image, "<Button-1>",on_drag_start)
+		
+
+
+
+
+
+		
+
+
+
+
+
+
+
+
+
+
 class TransparentImageButton(Tk):
     def __init__(self, master, fp= "GUI/file_img.png", function = None,relx = 0, rely = 0, anchor = NW, width = 100, height = 100):
         self.fp = fp# image filapath
@@ -73,7 +133,7 @@ class Application(Tk):
 		#toolbar menu
 		self.toolbar = Frame(master,padx=0,pady=0,highlightbackground=bordercolor,bg=windowcolor,highlightthickness=2)
 		self.toolbar.place(anchor = NW,relx=0.00,rely=0.148,relwidth=0.1,relheight=0.7)
-		self.FOButton = TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = None)
+		self.FOButton = TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = self.create_FO)
 		self.widgets = []
 	def add_widget(self, **kwargs):
 		"""
@@ -96,20 +156,62 @@ class Application(Tk):
 				"anchor": NW,
 				"relx": 0,
 				"rely": 0
-			}
+			},
+			"PackType": None #optional
 		}
 		#-----------------------------------------------------------
 		#if arguments are empty, default settings are assumed
 		if kwargs == {}:
 			kwargs = default
 		#-----------------------------------------------------------
-		w = kwargs['Widget'](**kwargs.get("WidgetParams"))
-		if not w.winfo_ismapped():
-			w.place(**kwargs.get("PackParams"))
-		self.widgets.append(w)
-		return w.winfo_ismapped()
+		#need: stock widget --> needs only widget parameters, custom --> pass all parameters
+		IsCustom = not hasattr(kwargs["Widget"],"pack")
+		if IsCustom:#Is a custom widget
+			w = kwargs["Widget"](**kwargs)
+		else:#is a Tkinter default widget
+			w = kwargs["Widget"](**kwargs["WidgetParams"])
+			if "PackType" in kwargs.keys():
+				if kwargs['PackType'] == 'pack':#type = pack
+					w.pack(**kwargs['PackParams'])
+				elif kwargs['PackType'] == 'place':#type = place
+					w.place(**kwargs['PackParams'])
+				else:#type is None or invalid
+					print("Invalid PackType: this may be the cause of an issue")
+					w.place(**kwargs['PackParams'])
+			else:#PackType does not exist
+				w.place(**kwargs['PackParams'])
+				
 
-		#w.place(kwargs['PackParams'])
+
+
+
+
+
+
+
+
+		self.widgets.append(w)
+		return w
+	def create_FO(self,event):
+		settings = {# a peek at the default argument structure
+			"Widget": FileOpener,
+			"WidgetParams": {
+				"master": self.c,
+				"width": 100,
+				"height": 100,
+				"bg": None
+			},
+			"PackParams":{
+				"anchor": NW,
+				"x": 0,
+				"y": 0,
+				"relx": 0,
+				"rely": 0
+			}
+		}
+		w = self.add_widget(**settings)
+		#make_draggable(w.f)
+
 		
 
 		
