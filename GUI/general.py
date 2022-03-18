@@ -23,3 +23,5 @@ def create_img(fp, scale = 1):
 	img = Image.open(fp=fp)
 	img = img.resize((int(img.width*scale),int(img.height*scale)))
 	return ImageTk.PhotoImage(image = img)
+def keylist(d: dict):
+	return list(d.keys())

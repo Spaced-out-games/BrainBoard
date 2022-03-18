@@ -1,43 +1,49 @@
+from ast import arguments
 from genericpath import exists
 from tkinter import *
 from tkinter import ttk
 import tkinter
 from PIL import Image,ImageTk
 from jinja2 import is_undefined
-from general import create_img
+from tkinter_classes import make_draggable
+from classes import FileOpener
+from general import create_img, keylist
+from pprint import pprint as pprint
 bordercolor = "#888888"
 windowcolor = "#aaaaaa"
 
 def f(event = None):
 	print("called!")
-
+class TransparentImageButton(Tk):
+    def __init__(self, master, fp= "GUI/file_img.png", function = None,relx = 0, rely = 0, anchor = NW, width = 100, height = 100):
+        self.fp = fp# image filapath
+        c = master['bg']
+        if c == None:
+            c = 'white'
+        self.function = function
+        self.img = create_img(fp = fp, scale = 0.3)
+        self.frame = Frame(
+            master,
+            padx = 5,
+            pady = 5,
+            highlightbackground=c,
+            bg = c,
+            highlightthickness=0,
+        )
+        self.frame.place(anchor = anchor,relx=relx,rely=rely,width=width,height=height)
+        self.canvas = Canvas(
+            self.frame,
+            bg = c,
+            highlightbackground=c
+            )
+        self.canvas.place(anchor = NW,relx=0,rely=0,relwidth=1,relheight=1)
+        self.image = self.canvas.create_image((45,45),image = self.img,anchor = CENTER)
+        self.canvas.tag_bind(self.image, "<Button-1>",self.function)
 
 frames = 0
-lastw = 0
-lasth = 0
-#Tkinter Sub-process:
 def task():
-	#do some stuff
-	global frames,lastw,lasth
-	if frames == 0:
-		lastw = window.winfo_width()
-		lasth = window.winfo_height()
-	else:
-		if lastw != window.winfo_width() or lasth != window.winfo_height():
-			#react
-			#app object should not be called, as this results in a recursion error. Need to look into this
-			w = app.winfo_width()
-			h = app.winfo_height()
-			x = w<<5
-			print
-			y = 0
-			app.tc.moveto("FO",x,y)
-
-			pass
-
-	lastw = window.winfo_width()
-	lasth = window.winfo_height()
-	frames = frames + 1
+	global frames
+	frames+=1
 
 	#schedule next call
 	window.after(1, task)
@@ -64,26 +70,47 @@ class Application(Tk):
 		self.cf.place(anchor = NW,relx=0.099,rely=0.148,relwidth=0.801,relheight=0.699)
 		self.c = Canvas(master = self.cf,bg = "#FFFFFF")
 		self.c.place(anchor = NW,relwidth=1,relheight=1)
-		self.c.create_line(5,5,5,5,fill = "red")
-
 		#toolbar menu
 		self.toolbar = Frame(master,padx=0,pady=0,highlightbackground=bordercolor,bg=windowcolor,highlightthickness=2)
 		self.toolbar.place(anchor = NW,relx=0.00,rely=0.148,relwidth=0.1,relheight=0.7)
+		self.FOButton = TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = None)
+		self.widgets = []
+	def add_widget(self, **kwargs):
+		"""
+		Expected keyword argument structure:
+		{
+			"Widget": WidgetInstance
+			"WidgetParams":{}
+			"PackParams":{} --> dictionary containing the parameters for packing widget
+		}
+		"""
+		default = {# a peek at the default argument structure
+			"Widget": Frame,
+			"WidgetParams": {
+				"master": self.c,
+				"width": 100,
+				"height": 100,
+				"bg": windowcolor
+			},
+			"PackParams":{
+				"anchor": NW,
+				"relx": 0,
+				"rely": 0
+			}
+		}
+		#-----------------------------------------------------------
+		#if arguments are empty, default settings are assumed
+		if kwargs == {}:
+			kwargs = default
+		#-----------------------------------------------------------
+		w = kwargs['Widget'](**kwargs.get("WidgetParams"))
+		if not w.winfo_ismapped():
+			w.place(**kwargs.get("PackParams"))
+		self.widgets.append(w)
+		return w.winfo_ismapped()
 
-		#Toolbar canvas
-		self.tc = Canvas(self.toolbar)
-		self.tc.place(anchor = NW,relwidth=1,relheight=1)
-
-		#This code block creates a clickable canvas button, which calls f() when clicked
-
-		self.FO_i = create_img(fp=r"GUI/file_img.png",scale = 0.5)
-		self.FO_b = self.tc.create_image((50,50),image = self.FO_i,tags = ['FO'])
-		self.tc.move("FO",0,0)
+		#w.place(kwargs['PackParams'])
 		
-
-		self.tc.tag_bind(self.FO_b, "<Button-1>",self.test)
-	def test(self, event):
-		print(self.tc.winfo_width())
 
 		
 
@@ -93,9 +120,6 @@ class Application(Tk):
 if __name__ == "__main__":
 	window = Tk()
 	#Image initializaton (Needs to be after Tk() is created)
-	file = Image.open("GUI/file_img.png")# actual size = 148 × 226(w:h = 0.65487)
-	file = file.resize(size = (40, 60))
-	file = ImageTk.PhotoImage(file)
 	window.geometry("1360x768")
 	app = Application(window)
 	window.after(1,task)
