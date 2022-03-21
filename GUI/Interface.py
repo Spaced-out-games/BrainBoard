@@ -11,8 +11,10 @@ from pygments import highlight
 from general import create_img, keylist
 from pprint import pprint as pprint
 from functools import lru_cache
-bordercolor = "#888888"
-windowcolor = "#aaaaaa"
+pallete = {
+"bordercolor": "#888888",
+"windowcolor": "#aaaaaa"
+}
 f = lambda: None
 num_widgets = 0
 def make_draggable(widget):
@@ -29,7 +31,16 @@ def on_drag_motion(event):
 	x = widget.winfo_x() - widget._drag_start_x + event.x
 	y = widget.winfo_y() - widget._drag_start_y + event.y
 	widget.place(x=x, y=y)
-	#widget.pack()
+class Pin(Tk):
+	def __init__(self, **args):
+		"""
+		Initialize Pin
+		"""
+		self.datatype = args['type'] if 'datatype' in args else None #set default datatype
+		self.IsWildcard = (True if type(self.datatype) == type(None) else False)#if default datatype is None, this Pin is a wildcard
+		self.default = (args['default'] if 'default' in args else None)#Set default value
+		self.direction = (args['dir'] if 'dir' in args else 0)
+		self.master = args['master']
 
 
 
@@ -45,7 +56,7 @@ class FileOpener(Tk):
 			master = wp['master'],
 			padx = 0,
 			pady = 0,
-			highlightbackground="red",
+			highlightbackground=pallete['windowcolor'],
 			bg = None,
 			highlightthickness=2,
 		)
@@ -144,16 +155,16 @@ class Application(Tk):
 		#GUI
 		#Top Toolbar
 
-		self.Topbar = Frame(master, height = 100,padx=0,pady=0,highlightbackground=bordercolor,bg=windowcolor,highlightthickness=2)
+		self.Topbar = Frame(master, height = 100,padx=0,pady=0,highlightbackground=pallete['bordercolor'],bg=pallete['windowcolor'],highlightthickness=2)
 		self.Topbar.place(anchor = NW,relx=0,rely=0,relwidth = 0.9,relheight = 0.15)
 
 		#Canvas frame
-		self.cf = Frame(master,padx=0,pady=0,highlightbackground=bordercolor,bg=windowcolor,highlightthickness=2)
+		self.cf = Frame(master,padx=0,pady=0,highlightbackground=pallete['bordercolor'],bg=pallete['windowcolor'],highlightthickness=2)
 		self.cf.place(anchor = NW,relx=0.099,rely=0.148,relwidth=0.801,relheight=0.699)
 		self.c = Canvas(master = self.cf,bg = "#FFFFFF")
 		self.c.place(anchor = NW,relwidth=1,relheight=1)
 		#toolbar menu
-		self.toolbar = Frame(master,padx=0,pady=0,highlightbackground=bordercolor,bg=windowcolor,highlightthickness=2)
+		self.toolbar = Frame(master,padx=0,pady=0,highlightbackground=pallete['bordercolor'],bg=pallete['windowcolor'],highlightthickness=2)
 		self.toolbar.place(anchor = NW,relx=0.00,rely=0.148,relwidth=0.1,relheight=0.7)
 		self.FOButton = TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = self.create_FO)
 		self.widgets = []
@@ -172,7 +183,7 @@ class Application(Tk):
 				"master": self.c,
 				"width": 100,
 				"height": 100,
-				"bg": windowcolor
+				"bg": pallete['windowcolor']
 			},
 			"PackParams":{
 				"anchor": NW,
