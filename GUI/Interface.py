@@ -21,6 +21,10 @@ pallete = {
 f = lambda: None
 frames = 0
 num_widgets = 0
+window = Tk()
+window.geometry("1360x768")
+
+
 def make_draggable(widget):
 	widget.bind("<Button-1>", on_drag_start)
 	widget.bind("<B1-Motion>", on_drag_motion)
@@ -36,6 +40,21 @@ def on_drag_motion(event):
 	y = widget.winfo_y() - widget._drag_start_y + event.y
 	widget.place(x=x, y=y)
 
+def on_drag_start_pin(event):
+
+	widget = event.widget
+	
+	parent = widget.winfo_parent()
+	print(window.children)
+	#children = widget.children
+	#c = children['!canvas']
+	#widget.create_line((0,0),(20,20),fill = "red")
+def on_drag_motion_pin(event):
+	print("drop")
+	#widget = event.widget
+	#x = widget.winfo_x() - widget._drag_start_x + event.x
+	#y = widget.winfo_y() - widget._drag_start_y + event.y
+	#widget.place(x=x, y=y)
 class TransparentImageButton(Tk):
 	def __init__(self, master, fp= "GUI/file_img.png", function = None,relx = 0, rely = 0, anchor = NW, width = 100, height = 100):
 		self.fp = fp# image filapath
@@ -43,23 +62,24 @@ class TransparentImageButton(Tk):
 		if c == None:
 			c = 'white'
 		self.function = function
-		self.img = create_img(fp = fp, scale = 0.3)
+		self.img = create_img(fp = fp, scale = 0.2)
 		self.frame = Frame(
 			master,
 			padx = 5,
 			pady = 5,
 			highlightbackground=c,
 			bg = c,
-			highlightthickness=0,
+			highlightthickness=0
 		)
-		self.frame.place(anchor = anchor,relx=relx,rely=rely,width=width,height=height)
+		self.frame.place(anchor = anchor,relx=relx,rely=rely,relwidth=0.9,relheight=0.15)
 		self.canvas = Canvas(
 			self.frame,
 			bg = c,
-			highlightbackground=c
+			highlightbackground=c,
 			)
-		self.canvas.place(anchor = NW,relx=0,rely=0,relwidth=1,relheight=1)
-		self.image = self.canvas.create_image((45,45),image = self.img,anchor = CENTER)
+
+		self.canvas.place(anchor = CENTER,relx=0.5,rely=0.5,relwidth=1,relheight=1)
+		self.image = self.canvas.create_image((10,5),image = self.img,anchor = NW)
 		self.canvas.tag_bind(self.image, "<Button-1>",self.function)
 
 '''ALL CLASSES BELOW THIS'''
@@ -67,38 +87,44 @@ class Pin(Tk):
 	def __init__(self, **args):
 		#Note: kwargs has no depth
 		wp = args['WidgetParams']
-		self.img = create_img(fp = "GUI/pin-open.png", scale = 0.03)
+		self.img = create_img(fp = "GUI/pin-open.png", scale = 0.04)
+		#self.img.
 		self.fp = "test"
 		pp = args["PackParams"]
 		self.f = Frame(
 			master = wp['master'],
 			padx = 0,
 			pady = 0,
-			highlightbackground=pallete['bordercolor'],
-			bg = pallete['windowcolor'],
-			highlightthickness=2,
+			highlightbackground=None,
+			bg = "green",
+			highlightthickness=2
 		)
 		self.f.place(
 			anchor = pp['anchor'],
 			x = pp['x'],
 			y = pp['y'],
-			width = 10,
-			height=10
+			width=25,
+			height=25
 		)
+		
+		
+
 		self.c = Canvas(
 			master = self.f,
-			bg = None,
-			width = 10,
-			height = 10,
+			bg = 'green'
 		)
-		self.c.place(anchor = CENTER,relx=0.5,rely=0.35)
+
+
+		self.c.place(anchor = NW,relx=0.0,rely=0.0,relwidth=1,relheight=1)
+		
 		self.image = self.c.create_image((5,5),image = self.img,anchor = NW)
-		self.c.tag_bind(self.image,"<Button-1>", self.test)
-		#self.c.tag_bind(self.image,"<B1-Motion>", on_drag_motion)
-		#self.f.bind("<Button-1>", on_drag_start)
-		#self.f.bind("<B1-Motion>", on_drag_motion)
+		self.c.tag_bind(self.image,"<Button-1>", on_drag_start_pin)
+		self.c.tag_bind(self.image,"<B1-Motion>", on_drag_motion_pin)
+
+		#self.f.bind("<Button-1>", on_drag_start_pin)
+		#self.f.bind("<B1-Motion>", on_drag_motion_pin)
 	def test(self, event):
-		print("testing")
+		print(self.winfo_rootx()+event.y)
 
 
 class FileOpener(Tk):
@@ -176,13 +202,14 @@ class Application(Tk):
 
 		#Canvas frame
 		self.cf = Frame(master,padx=0,pady=0,highlightbackground=pallete['bordercolor'],bg=pallete['windowcolor'],highlightthickness=2)
-		self.cf.place(anchor = NW,relx=0.099,rely=0.148,relwidth=0.801,relheight=0.699)
+		self.cf.place(anchor = NW,relx=0.049,rely=0.148,relwidth=0.851,relheight=0.699)
 		self.c = Canvas(master = self.cf,bg = "#FFFFFF")
 		self.c.place(anchor = NW,relwidth=1,relheight=1)
 		#toolbar menu
 		self.toolbar = Frame(master,padx=0,pady=0,highlightbackground=pallete['bordercolor'],bg=pallete['windowcolor'],highlightthickness=2)
-		self.toolbar.place(anchor = NW,relx=0.00,rely=0.148,relwidth=0.1,relheight=0.7)
-		self.FOButton = TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = self.create_pin)#create_pin needs changed to create_FO
+		self.toolbar.place(anchor = NW,relx=0.00,rely=0.148,relwidth=0.05,relheight=0.7)
+		self.FOButton = TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = self.create_FO)
+		self.PinButton = TransparentImageButton(self.toolbar,relx = 0.5,rely = 0.2,anchor = N,function = self.create_pin,fp = "GUI/pin-open.png")#create_pin needs changed to create_FO
 		#TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = self.create_FO)
 		self.widgets = []
 		#"""
@@ -289,7 +316,6 @@ class Application(Tk):
 
 
 if __name__ == "__main__":
-	window = Tk()
 	#Image initializaton (Needs to be after Tk() is created)
 	window.geometry("1360x768")
 	app = Application(window)

@@ -1,5 +1,6 @@
 import math as m
 from PIL import Image, ImageTk
+from tkinter import PhotoImage
 def avgpts(pts):
 	x = []
 	y = []
@@ -20,8 +21,12 @@ def p3d(x,y,z,depth_scaling = True):
 def avg(a,b):
 	return (a+b)<<1
 def create_img(fp, scale = 1):
-	img = Image.open(fp=fp)
-	img = img.resize((int(img.width*scale),int(img.height*scale)))
-	return ImageTk.PhotoImage(image = img)
+	PhIm = PhotoImage(file=fp)
+	#PhIm = PhIm.zoom(x=2,y=2)
+	s = int(1/scale)
+	PhIm = PhIm.subsample(s,s)
+	
+
+	return PhIm
 def keylist(d: dict):
 	return list(d.keys())
