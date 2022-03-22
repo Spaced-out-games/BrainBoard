@@ -11,11 +11,15 @@ from pygments import highlight
 from general import create_img, keylist
 from pprint import pprint as pprint
 from functools import lru_cache
+#parent widget space to canvas position = widgetpos + relative pos
 pallete = {
 "bordercolor": "#888888",
-"windowcolor": "#aaaaaa"
+"windowcolor": "#aaaaaa",
+"windowcolorBG": "#777777"
+#other colors are for types
 }
 f = lambda: None
+frames = 0
 num_widgets = 0
 def make_draggable(widget):
 	widget.bind("<Button-1>", on_drag_start)
@@ -31,81 +35,6 @@ def on_drag_motion(event):
 	x = widget.winfo_x() - widget._drag_start_x + event.x
 	y = widget.winfo_y() - widget._drag_start_y + event.y
 	widget.place(x=x, y=y)
-class Pin(Tk):
-	def __init__(self, **args):
-		"""
-		Initialize Pin
-		"""
-		self.datatype = args['type'] if 'datatype' in args else None #set default datatype
-		self.IsWildcard = (True if type(self.datatype) == type(None) else False)#if default datatype is None, this Pin is a wildcard
-		self.default = (args['default'] if 'default' in args else None)#Set default value
-		self.direction = (args['dir'] if 'dir' in args else 0)
-		self.master = args['master']
-
-
-
-
-class FileOpener(Tk):
-	def __init__(self, **args):
-		#Note: kwargs has no depth
-		wp = args['WidgetParams']
-		self.img = create_img(fp = "GUI/file_img.png", scale = 0.25)
-		self.fp = "test"
-		pp = args["PackParams"]
-		self.f = Frame(
-			master = wp['master'],
-			padx = 0,
-			pady = 0,
-			highlightbackground=pallete['windowcolor'],
-			bg = None,
-			highlightthickness=2,
-		)
-		self.f.place(
-			anchor = pp['anchor'],
-			x = pp['x'],
-			y = pp['y'],
-			width = 100,
-			height=150
-		)
-		self.c = Canvas(
-			master = self.f,
-			bg = None,
-			width = 36,
-			height = 55,
-		)
-		self.c.place(anchor = CENTER,relx=0.5,rely=0.35)
-		self.image = self.c.create_image((20,30),image = self.img,anchor = CENTER)
-		self.filebutton = Button(master = self.f,text="Open File",command = self.dialog)
-		self.filebutton.place(anchor = CENTER, relx=0.5,rely = 0.9)
-
-		self.l = Label(master = self.f, text = self.fp,bg = None)
-		self.l.place(anchor = CENTER, relx=0.5,rely = 0.7)
-		#self.c.tag_bind(self.image,"<Button-1>", on_drag_start)
-		#self.c.tag_bind(self.image,"<B1-Motion>", on_drag_motion)
-		self.f.bind("<Button-1>", on_drag_start)
-		self.f.bind("<B1-Motion>", on_drag_motion)
-
-	def dialog(self):
-		d = filedialog.askopenfilename()
-		print(d)
-		self.fp = d
-		self.l['text'] = d
-		self.l.update()
-
-
-
-
-
-		
-
-
-
-
-
-
-
-
-
 
 class TransparentImageButton(Tk):
 	def __init__(self, master, fp= "GUI/file_img.png", function = None,relx = 0, rely = 0, anchor = NW, width = 100, height = 100):
@@ -133,7 +62,94 @@ class TransparentImageButton(Tk):
 		self.image = self.canvas.create_image((45,45),image = self.img,anchor = CENTER)
 		self.canvas.tag_bind(self.image, "<Button-1>",self.function)
 
-frames = 0
+'''ALL CLASSES BELOW THIS'''
+class Pin(Tk):
+	def __init__(self, **args):
+		#Note: kwargs has no depth
+		wp = args['WidgetParams']
+		self.img = create_img(fp = "GUI/pin-open.png", scale = 0.03)
+		self.fp = "test"
+		pp = args["PackParams"]
+		self.f = Frame(
+			master = wp['master'],
+			padx = 0,
+			pady = 0,
+			highlightbackground=pallete['bordercolor'],
+			bg = pallete['windowcolor'],
+			highlightthickness=2,
+		)
+		self.f.place(
+			anchor = pp['anchor'],
+			x = pp['x'],
+			y = pp['y'],
+			width = 10,
+			height=10
+		)
+		self.c = Canvas(
+			master = self.f,
+			bg = None,
+			width = 10,
+			height = 10,
+		)
+		self.c.place(anchor = CENTER,relx=0.5,rely=0.35)
+		self.image = self.c.create_image((5,5),image = self.img,anchor = NW)
+		self.c.tag_bind(self.image,"<Button-1>", self.test)
+		#self.c.tag_bind(self.image,"<B1-Motion>", on_drag_motion)
+		#self.f.bind("<Button-1>", on_drag_start)
+		#self.f.bind("<B1-Motion>", on_drag_motion)
+	def test(self, event):
+		print("testing")
+
+
+class FileOpener(Tk):
+	def __init__(self, **args):
+		#Note: kwargs has no depth
+		wp = args['WidgetParams']
+		self.img = create_img(fp = "GUI/file_img.png", scale = 0.25)
+		self.fp = "test"
+		pp = args["PackParams"]
+		self.f = Frame(
+			master = wp['master'],
+			padx = 0,
+			pady = 0,
+			highlightbackground=pallete['bordercolor'],
+			bg = pallete['windowcolor'],
+			highlightthickness=2,
+		)
+		self.f.place(
+			anchor = pp['anchor'],
+			x = pp['x'],
+			y = pp['y'],
+			width = 100,
+			height=150
+		)
+		self.c = Canvas(
+			master = self.f,
+			bg = None,
+			width = 36,
+			height = 55,
+		)
+		self.c.place(anchor = CENTER,relx=0.5,rely=0.35)
+		self.image = self.c.create_image((20,30),image = self.img,anchor = CENTER)
+		self.filebutton = Button(master = self.f,text="Open File",command = self.dialog)
+		self.filebutton.place(anchor = CENTER, relx=0.5,rely = 0.9)
+
+		self.l = Label(master = self.f, text = self.fp,bg = pallete['windowcolor'])
+		self.l.place(anchor = CENTER, relx=0.5,rely = 0.7)
+		#self.c.tag_bind(self.image,"<Button-1>", on_drag_start)
+		#self.c.tag_bind(self.image,"<B1-Motion>", on_drag_motion)
+		self.f.bind("<Button-1>", on_drag_start)
+		self.f.bind("<B1-Motion>", on_drag_motion)
+
+	def dialog(self):
+		d = filedialog.askopenfilename()
+		print(d)
+		self.fp = d
+		self.l['text'] = d
+		self.l.update()
+
+
+
 def task():
 	global frames
 	frames+=1
@@ -166,8 +182,11 @@ class Application(Tk):
 		#toolbar menu
 		self.toolbar = Frame(master,padx=0,pady=0,highlightbackground=pallete['bordercolor'],bg=pallete['windowcolor'],highlightthickness=2)
 		self.toolbar.place(anchor = NW,relx=0.00,rely=0.148,relwidth=0.1,relheight=0.7)
-		self.FOButton = TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = self.create_FO)
+		self.FOButton = TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = self.create_pin)#create_pin needs changed to create_FO
+		#TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = self.create_FO)
 		self.widgets = []
+		#"""
+		#"""
 	def add_widget(self, **kwargs):
 		"""
 		Expected keyword argument structure:
@@ -243,7 +262,24 @@ class Application(Tk):
 			}
 		}
 		w = self.add_widget(**settings)
-		#make_draggable(w.f)
+	def create_pin(self, event):
+		settings = (
+			{
+				"Widget": Pin,
+				"WidgetParams":{
+					"master": self.c,
+					"width": 100,
+					"height": 100,
+					"bg": None
+				},
+				"PackParams":{
+					"anchor": NW,
+					"x": 0,
+					"y": 0
+				}
+			}
+		)
+		w = self.add_widget(**settings)
 
 		
 
