@@ -2,7 +2,7 @@ from ast import arguments
 from genericpath import exists
 from inspect import Parameter
 from tkinter import *
-from tkinter import ttk,filedialog
+from tkinter import ttk,filedialog,Widget
 import tkinter
 from turtle import bgcolor
 from PIL import Image,ImageTk
@@ -41,20 +41,31 @@ def on_drag_motion(event):
 	widget.place(x=x, y=y)
 
 def on_drag_start_pin(event):
-
-	widget = event.widget
+	w = event.widget
+	#Canvas.winfo_rootx
+	p = Widget.nametowidget(w, name = w.winfo_parent())
 	
-	parent = widget.winfo_parent()
-	print(window.children)
-	#children = widget.children
-	#c = children['!canvas']
-	#widget.create_line((0,0),(20,20),fill = "red")
+	pos = (p.winfo_x(),p.winfo_y())#position of this pin
+	print(pos)
+	mouse = (event.x,event.y)
+	gp = Widget.nametowidget(Widget.nametowidget(w, name = w.winfo_parent()), name = Widget.nametowidget(w, name = w.winfo_parent()).winfo_parent())
+	w._mouse_start = mouse
+	w._widget_location = pos
+	w._grandparent = gp #this should be the background canvas
 def on_drag_motion_pin(event):
-	print("drop")
-	#widget = event.widget
-	#x = widget.winfo_x() - widget._drag_start_x + event.x
-	#y = widget.winfo_y() - widget._drag_start_y + event.y
-	#widget.place(x=x, y=y)
+	w = event.widget
+	gp = w._grandparent
+	#gp = Widget.nametowidget(Widget.nametowidget(w, name = w.winfo_parent()), name = Widget.nametowidget(w, name = w.winfo_parent()).winfo_parent())
+	pass
+def on_drag_end_pin(event):
+	w = event.widget
+	gp = w._grandparent
+	start = (w._mouse_start[0] + w._widget_location[0], w._mouse_start[1] + w._widget_location[1])
+	end = (event.x + w._widget_location[0],event.y + w._widget_location[1])
+
+	gp.create_line(start, end, fill = "black",width = 3)
+
+
 class TransparentImageButton(Tk):
 	def __init__(self, master, fp= "GUI/file_img.png", function = None,relx = 0, rely = 0, anchor = NW, width = 100, height = 100):
 		self.fp = fp# image filapath
@@ -96,36 +107,37 @@ class Pin(Tk):
 			padx = 0,
 			pady = 0,
 			highlightbackground=None,
-			bg = "green",
-			highlightthickness=2
+			bg = 'green',
+			highlightthickness=0
 		)
 		self.f.place(
 			anchor = pp['anchor'],
 			x = pp['x'],
 			y = pp['y'],
-			width=25,
-			height=25
+			width=11,
+			height=11
 		)
 		
 		
 
 		self.c = Canvas(
 			master = self.f,
-			bg = 'green'
+			bg = "black",
+			highlightthickness=0
 		)
 
 
-		self.c.place(anchor = NW,relx=0.0,rely=0.0,relwidth=1,relheight=1)
+		self.c.place(anchor = NW,x=0,y=0,width=25,height=25)
 		
-		self.image = self.c.create_image((5,5),image = self.img,anchor = NW)
+		self.image = self.c.create_image((0,0),image = self.img,anchor = NW)
 		self.c.tag_bind(self.image,"<Button-1>", on_drag_start_pin)
 		self.c.tag_bind(self.image,"<B1-Motion>", on_drag_motion_pin)
+		self.c.tag_bind(self.image,"<ButtonRelease-1>",on_drag_end_pin)
 
 		#self.f.bind("<Button-1>", on_drag_start_pin)
 		#self.f.bind("<B1-Motion>", on_drag_motion_pin)
 	def test(self, event):
-		print(self.winfo_rootx()+event.y)
-
+		pass
 
 class FileOpener(Tk):
 	def __init__(self, **args):
@@ -204,6 +216,7 @@ class Application(Tk):
 		self.cf = Frame(master,padx=0,pady=0,highlightbackground=pallete['bordercolor'],bg=pallete['windowcolor'],highlightthickness=2)
 		self.cf.place(anchor = NW,relx=0.049,rely=0.148,relwidth=0.851,relheight=0.699)
 		self.c = Canvas(master = self.cf,bg = "#FFFFFF")
+		self.c.custom_mem = {}
 		self.c.place(anchor = NW,relwidth=1,relheight=1)
 		#toolbar menu
 		self.toolbar = Frame(master,padx=0,pady=0,highlightbackground=pallete['bordercolor'],bg=pallete['windowcolor'],highlightthickness=2)
@@ -295,14 +308,14 @@ class Application(Tk):
 				"Widget": Pin,
 				"WidgetParams":{
 					"master": self.c,
-					"width": 100,
-					"height": 100,
+					"width": 25,
+					"height": 25,
 					"bg": None
 				},
 				"PackParams":{
 					"anchor": NW,
-					"x": 0,
-					"y": 0
+					"x": 80,
+					"y": 80
 				}
 			}
 		)
