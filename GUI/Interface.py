@@ -46,24 +46,32 @@ def on_drag_start_pin(event):
 	p = Widget.nametowidget(w, name = w.winfo_parent())
 	
 	pos = (p.winfo_x(),p.winfo_y())#position of this pin
-	print(pos)
 	mouse = (event.x,event.y)
 	gp = Widget.nametowidget(Widget.nametowidget(w, name = w.winfo_parent()), name = Widget.nametowidget(w, name = w.winfo_parent()).winfo_parent())
 	w._mouse_start = mouse
 	w._widget_location = pos
 	w._grandparent = gp #this should be the background canvas
+	#Canvas.create_oval()
+	#gp.create_oval(pos[0]-50,pos[1]-50,pos[0]+50,pos[1]+50,fill = "red")
 def on_drag_motion_pin(event):
 	w = event.widget
 	gp = w._grandparent
-	#gp = Widget.nametowidget(Widget.nametowidget(w, name = w.winfo_parent()), name = Widget.nametowidget(w, name = w.winfo_parent()).winfo_parent())
-	pass
+
+
+
+	start = (w._widget_location[0]+5, w._widget_location[1]+5)
+	end = (event.x + w._widget_location[0],event.y + w._widget_location[1])
+	if "_line" in dir(w):
+		gp.delete(w._line)
+	w._line = gp.create_line(start, end, fill = "black",width = 3)
 def on_drag_end_pin(event):
 	w = event.widget
 	gp = w._grandparent
-	start = (w._mouse_start[0] + w._widget_location[0], w._mouse_start[1] + w._widget_location[1])
+	start = (w._widget_location[0]+5, w._widget_location[1]+5)
 	end = (event.x + w._widget_location[0],event.y + w._widget_location[1])
-
-	gp.create_line(start, end, fill = "black",width = 3)
+	if "_line" in dir(w):
+		gp.delete(w._line)
+	w._line = gp.create_line(start, end, fill = "black",width = 3)
 
 
 class TransparentImageButton(Tk):
@@ -108,14 +116,14 @@ class Pin(Tk):
 			pady = 0,
 			highlightbackground=None,
 			bg = 'green',
-			highlightthickness=0
+			highlightthickness=4#0 later
 		)
 		self.f.place(
 			anchor = pp['anchor'],
 			x = pp['x'],
 			y = pp['y'],
-			width=11,
-			height=11
+			width=15,
+			height=15
 		)
 		
 		
@@ -127,15 +135,18 @@ class Pin(Tk):
 		)
 
 
-		self.c.place(anchor = NW,x=0,y=0,width=25,height=25)
+		self.c.place(anchor = NW,x=0,y=0,width=11,height=11)
 		
 		self.image = self.c.create_image((0,0),image = self.img,anchor = NW)
+
+		#when canvas is clicked
 		self.c.tag_bind(self.image,"<Button-1>", on_drag_start_pin)
 		self.c.tag_bind(self.image,"<B1-Motion>", on_drag_motion_pin)
 		self.c.tag_bind(self.image,"<ButtonRelease-1>",on_drag_end_pin)
 
-		#self.f.bind("<Button-1>", on_drag_start_pin)
-		#self.f.bind("<B1-Motion>", on_drag_motion_pin)
+		#When frame is clicked
+		self.f.bind("<Button-1>", on_drag_start)
+		self.f.bind("<B1-Motion>", on_drag_motion)
 	def test(self, event):
 		pass
 
