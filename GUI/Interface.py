@@ -1,8 +1,5 @@
-from ast import arguments
-from genericpath import exists
-from inspect import Parameter
 from tkinter import *
-from tkinter import ttk,filedialog,Widget
+from tkinter import ttk,filedialog,Widget,dnd
 import tkinter
 from turtle import bgcolor
 from PIL import Image,ImageTk
@@ -51,8 +48,6 @@ def on_drag_start_pin(event):
 	w._mouse_start = mouse
 	w._widget_location = pos
 	w._grandparent = gp #this should be the background canvas
-	#Canvas.create_oval()
-	#gp.create_oval(pos[0]-50,pos[1]-50,pos[0]+50,pos[1]+50,fill = "red")
 def on_drag_motion_pin(event):
 	w = event.widget
 	gp = w._grandparent
@@ -73,15 +68,14 @@ def on_drag_end_pin(event):
 		gp.delete(w._line)
 	w._line = gp.create_line(start, end, fill = "black",width = 3)
 
-
 class TransparentImageButton(Tk):
-	def __init__(self, master, fp= "GUI/file_img.png", function = None,relx = 0, rely = 0, anchor = NW, width = 100, height = 100):
+	def __init__(self, master, fp= "GUI/file_img.png", function = None,relx = 0, rely = 0, anchor = NW, width = 100, height = 100,scale = 0.1):
 		self.fp = fp# image filapath
 		c = master['bg']
 		if c == None:
 			c = 'white'
 		self.function = function
-		self.img = create_img(fp = fp, scale = 0.2)
+		self.img = create_img(fp = fp, scale = scale)
 		self.frame = Frame(
 			master,
 			padx = 5,
@@ -102,12 +96,58 @@ class TransparentImageButton(Tk):
 		self.canvas.tag_bind(self.image, "<Button-1>",self.function)
 
 '''ALL CLASSES BELOW THIS'''
+class Reroute(Tk):
+	def __init__(self, **args):
+		wp = args['WidgetParams']
+		pp = args["PackParams"]
+		self.f = Frame(
+			master = wp['master'],
+			padx = 0,
+			pady = 0,
+			highlightbackground=None,
+			bg= "green",
+			highlightthickness=4
+		)
+		self.f.place(
+			anchor = pp['anchor'],
+			x = pp['x'],
+			y = pp['y'],
+			width = 50,
+			height = 20
+		)
+		self.c = Canvas(
+			master = self.f,
+			bg = "red",
+			highlightthickness=0
+			)
+		self.c.place(anchor = NW,x=0,y=0,relwidth =1,relheight = 1)
+		settings = (
+			{
+				"Widget": Pin,
+				"WidgetParams":{
+					"master": self.c,
+					"width": 25,
+					"height": 25,
+					"bg": None
+				},
+				"PackParams":{
+					"anchor": NW,
+					"x": 0,
+					"y": 0
+				},
+				"AdditionalParams":{
+					"direction": 'out' #Default
+				}
+			}
+		)
+		self.input = Pin(**settings)
+
+
 class Pin(Tk):
 	def __init__(self, **args):
 		#Note: kwargs has no depth
 		wp = args['WidgetParams']
 		self.img = create_img(fp = "GUI/pin-open.png", scale = 0.04)
-		#self.img.
 		self.fp = "test"
 		pp = args["PackParams"]
 		self.f = Frame(
@@ -144,11 +184,7 @@ class Pin(Tk):
 		self.c.tag_bind(self.image,"<B1-Motion>", on_drag_motion_pin)
 		self.c.tag_bind(self.image,"<ButtonRelease-1>",on_drag_end_pin)
 
-		#When frame is clicked
-		self.f.bind("<Button-1>", on_drag_start)
-		self.f.bind("<B1-Motion>", on_drag_motion)
-	def test(self, event):
-		pass
+
 
 class FileOpener(Tk):
 	def __init__(self, **args):
@@ -175,8 +211,8 @@ class FileOpener(Tk):
 		self.c = Canvas(
 			master = self.f,
 			bg = None,
-			width = 36,
-			height = 55,
+			width = 64,#36,
+			height = 64#55
 		)
 		self.c.place(anchor = CENTER,relx=0.5,rely=0.35)
 		self.image = self.c.create_image((20,30),image = self.img,anchor = CENTER)
@@ -232,10 +268,11 @@ class Application(Tk):
 		#toolbar menu
 		self.toolbar = Frame(master,padx=0,pady=0,highlightbackground=pallete['bordercolor'],bg=pallete['windowcolor'],highlightthickness=2)
 		self.toolbar.place(anchor = NW,relx=0.00,rely=0.148,relwidth=0.05,relheight=0.7)
-		self.FOButton = TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = self.create_FO)
-		self.PinButton = TransparentImageButton(self.toolbar,relx = 0.5,rely = 0.2,anchor = N,function = self.create_pin,fp = "GUI/pin-open.png")#create_pin needs changed to create_FO
+		self.FOButton = TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = self.create_FO,scale = 0.2)
+		#self.PinButton = TransparentImageButton(self.toolbar,relx = 0.5,rely = 0.15,anchor = N,function = self.create_pin,fp = "GUI/pin-open.png",scale=0.1)#create_pin needs changed to create_FO
 		#TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = self.create_FO)
 		self.widgets = []
+		self.create_reroute(event = None)
 		#"""
 		#"""
 	def add_widget(self, **kwargs):
@@ -327,11 +364,31 @@ class Application(Tk):
 					"anchor": NW,
 					"x": 80,
 					"y": 80
+				},
+				"AdditionalParams":{
+					"direction": 'out' #Default
 				}
 			}
 		)
 		w = self.add_widget(**settings)
-
+	def create_reroute(self, event):
+		settings = (
+			{
+				"Widget": Reroute,
+				"WidgetParams":{
+					"master": self.c,
+					"width": 25,
+					"height": 25,
+					"bg": None
+				},
+				"PackParams":{
+					"anchor": NW,
+					"x": 80,
+					"y": 80
+				},
+			}
+		)
+		w = self.add_widget(**settings)
 		
 
 		
