@@ -1,3 +1,4 @@
+from ast import Is
 from tkinter import *
 from tkinter import ttk,filedialog,Widget,dnd
 import tkinter
@@ -17,11 +18,22 @@ data = {
 	"start": (None, None),
 	"wpos": (None, None),
 	"wparent": None,
-	"get_mouse": lambda event: (event.x, event.y),
-	"add_tuple": lambda x,y: (x[0]+y[0],x[1]+y[1]),
-	"get_parent": lambda widget: Widget.nametowidget(widget, name = widget.winfo_parent())
 }
 
+get_mouse = lambda event: (event.x, event.y),
+
+def add_tuple(*args):
+	xt = 0
+	yt = 0
+	for t in args:
+		x = t[0]
+		y = t[1]
+		xt += x
+		yt += y
+	return (xt,yt)
+
+
+get_parent= lambda widget: Widget.nametowidget(widget, name = widget.winfo_parent())
 
 
 pallete = {
@@ -33,10 +45,24 @@ pallete = {
 f = lambda: None
 frames = 0
 num_widgets = 0
+
 window = Tk()
 window.geometry("1360x768")
+def get_canvas_position(widget):
+	global viewport, data
+	x = 0
+	y = 0
+	if isinstance(widget,Pin):
+		x = 50
+		y = 50
+	while widget is not viewport:
+		x = x + widget.winfo_rootx()
+		y = y + widget.winfo_rooty()
+		widget = get_parent(widget)
+	return (x,y)
 
-
+def destroy_widget(widgetInstance):
+	widgetInstance.destroy(widgetInstance)
 def make_draggable(widget):
 	widget.bind("<Button-1>", on_drag_start)
 	widget.bind("<B1-Motion>", on_drag_motion)
@@ -55,8 +81,10 @@ def on_drag_motion(event):
 def on_drag_start_pin(event):
 	w = event.widget
 	global data
-	p = data['get_parent'](w)
-	mouse = data['get_mouse'](event)
+	p = get_parent(w)
+	mouse = (event.x,event.y)
+	print(mouse)
+	#pinloc
 	#set up some focus variables
 	#(data['viewport'].winfo_rootx(),data['viewport'].winfo_rooty())
 	data['start'] = mouse
@@ -64,7 +92,7 @@ def on_drag_start_pin(event):
 	data['wpos'] = (p.winfo_rootx(),p.winfo_rooty())
 	data['wparent'] = p
 	
-	start = data['add_tuple'](data['start'], data['wpos'])
+	start = add_tuple(data['start'], data['wpos'])
 	line = data['viewport'].create_line(start,start)
 
 	data['currentline'] = line
@@ -74,17 +102,22 @@ def on_drag_start_pin(event):
 def on_drag_motion_pin(event):
 	w = event.widget
 	global data
-	p = data['get_parent'](w)
-
-	start = data['add_tuple'](data['start'], data['wpos'])
-
-	end = data['add_tuple'](data['get_mouse'](event), data['wpos'])
+	p = get_parent(w)
+	#print(data('start'))
+	start = add_tuple(data['start'], data['wpos'])
+	mouse = (event.x,event.y)
+	print(mouse)
+	end = add_tuple(mouse, data['wpos'])
 
 	data['viewport'].delete(data['currentline'])
 
 	start = (
 		start[0] - data['viewport'].winfo_rootx(),
 		start[1] - data['viewport'].winfo_rooty()
+	)
+	end = (
+		end[0] - data['viewport'].winfo_rootx(),
+		end[1] - data['viewport'].winfo_rooty()
 	)
 
 	line = data['viewport'].create_line(start,end)
@@ -139,8 +172,10 @@ class Reroute(Tk):
 			x = pp['x'],
 			y = pp['y'],
 			width = 50,
-			height = 20
+			height = 20,
 		)
+		self.f.focus_set()
+
 		self.c = Canvas(
 			master = self.f,
 			bg = "red",
@@ -166,7 +201,35 @@ class Reroute(Tk):
 				}
 			}
 		)
+		self.IsSelected = False
 		self.input = Pin(**settings)
+		
+		self.f.bind("<Button-1>",self.select)
+		self.f.bind("<B1-Motion>",self.move)
+		self.f.bind("<ButtonRelease-1>",self.drop)
+		
+
+		self.f.bind("<BackSpace>",self.trydel)
+	def select(self, event):
+		self.IsSelected = True
+		self.HasMoved = False
+		p = get_canvas_position(self.f)
+		p1 = (self.f.winfo_rootx(),self.f.winfo_rootx())
+		print(p)
+		print(p1)
+		on_drag_start(event)
+	def move(self, event):
+		self.HasMoved = True
+		on_drag_motion(event)
+		#move code here
+	def drop(self, event):
+		"""If widget has been clicked but not dragged, widget remains selected. Otherwise, it is deselected on drop"""
+		if self.IsSelected and self.HasMoved:
+			self.IsSelected = False
+	def trydel(self, event):
+		if self.IsSelected:
+			self.f.destroy()
+
 
 
 class Pin(Tk):
@@ -184,6 +247,7 @@ class Pin(Tk):
 			bg = 'green',
 			highlightthickness=4#0 later
 		)
+
 		self.f.place(
 			anchor = pp['anchor'],
 			x = pp['x'],
@@ -192,8 +256,6 @@ class Pin(Tk):
 			height=15
 		)
 		
-		
-
 		self.c = Canvas(
 			master = self.f,
 			bg = "black",
@@ -258,8 +320,6 @@ class FileOpener(Tk):
 		self.fp = d
 		self.l['text'] = d
 		self.l.update()
-
-
 
 def task():
 	global frames
@@ -438,6 +498,3 @@ if __name__ == "__main__":
 	app = Application(window)
 	window.after(1,task)
 	window.mainloop()
-
-
-
