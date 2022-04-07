@@ -20,7 +20,8 @@ data = {
 	"wparent": None,
 }
 
-get_mouse = lambda event: (event.x, event.y),
+def get_mouse(event):
+	return (event.x, event.y)
 
 def add_tuple(*args):
 	xt = 0
@@ -49,6 +50,14 @@ num_widgets = 0
 window = Tk()
 window.geometry("1360x768")
 def get_canvas_position(widget):
+	"""Get the position of a widget in viewport space. Includes parent transforms
+
+	Args:
+		widget (Tkinter Widget): Any Tkinter widget instance
+
+	Returns:
+		tuple: Widget position in viewport
+	"""
 	global viewport, data
 	x = 0
 	y = 0
@@ -60,18 +69,50 @@ def get_canvas_position(widget):
 		y = y + widget.winfo_rooty()
 		widget = get_parent(widget)
 	return (x,y)
+def get_mouse_position(event):
+	"""Get mouse position in viewport space
 
+	Args:
+		event (Tkinter Event): a TkEvent instance
+
+	Returns:
+		tuple: Mouse position in viewport space
+	"""
+	widget = event.widget
+	wpos = get_canvas_position(widget)
+	mrelpos = (event.x, event.y)
+	return add_tuple(wpos, mrelpos)
 def destroy_widget(widgetInstance):
+	"""Destroy a widget
+
+	Args:
+		widgetInstance (Tkinter Widget): Any TKinter widget instance
+	"""
 	widgetInstance.destroy(widgetInstance)
 def make_draggable(widget):
+	"""Make a widget draggable
+
+	Args:
+		widget (Tkinter Widget): A TKinter Widget instance
+	"""
 	widget.bind("<Button-1>", on_drag_start)
 	widget.bind("<B1-Motion>", on_drag_motion)
 def on_drag_start(event):
+	"""initialize some internal variables for dragging
+
+	Args:
+		event (Tkinter Event): A TKinter event
+	"""
 	widget = event.widget
 	widget._drag_start_x = event.x
 	widget._drag_start_y = event.y
 	print("pickup")
 def on_drag_motion(event):
+	"""Proactively move a widget while it is dragged
+
+	Args:
+		event (Tkinter Event): _description_
+	"""
 	print("drop")
 	widget = event.widget
 	x = widget.winfo_x() - widget._drag_start_x + event.x
@@ -79,6 +120,11 @@ def on_drag_motion(event):
 	widget.place(x=x, y=y)
 
 def on_drag_start_pin(event):
+	"""Start drawing node lines for a pin
+
+	Args:
+		event (Tkinter Event): A TKinter Event
+	"""
 	w = event.widget
 	global data
 	p = get_parent(w)
@@ -86,7 +132,6 @@ def on_drag_start_pin(event):
 	print(mouse)
 	#pinloc
 	#set up some focus variables
-	#(data['viewport'].winfo_rootx(),data['viewport'].winfo_rooty())
 	data['start'] = mouse
 	data['focus'] = w
 	data['wpos'] = (p.winfo_rootx(),p.winfo_rooty())
@@ -100,6 +145,11 @@ def on_drag_start_pin(event):
 
 
 def on_drag_motion_pin(event):
+	"""Proactively draw node lines while Pin is dragged
+
+	Args:
+		event (Tkinter Event): A TKinter Event
+	"""
 	w = event.widget
 	global data
 	p = get_parent(w)
@@ -125,15 +175,34 @@ def on_drag_motion_pin(event):
 	data['currentline'] = line
 
 def on_drag_end_pin(event):
+	"""Save final line paths(previous lines are non functional up to this point)
+
+	Args:
+		event (TKinter Event): A Tkinter Event
+	"""
 	pass
 
 class TransparentImageButton(Tk):
-	def __init__(self, master, fp= "GUI/file_img.png", function = None,relx = 0, rely = 0, anchor = NW, width = 100, height = 100,scale = 0.1):
+	"""A workaround class for tkinter button images not being transparent"""
+	def __init__(self, master, fp= "GUI/file_img.png", callback = None,relx = 0, rely = 0, anchor = NW, width = 100, height = 100,scale = 0.1):
+		"""Initialize the class
+
+		Args:
+			master (TKinter Widget): parent widget
+			fp (str, optional): filepath to image. Defaults to "GUI/file_img.png".
+			callback (function): Function callback to be called when button is pressed. Defaults to None.
+			relx (float, optional): Button's x position relative to master. Defaults to 0.
+			rely (float, optional): Button's y position relative to master. Defaults to 0.
+			anchor (_type_, optional): Button origin. Defaults to NW.
+			width (int, optional): Button frame width. Defaults to 100.
+			height (int, optional): Button frame height. Defaults to 100.
+			scale (float, optional): Button image scale. Defaults to 0.1.
+		"""
 		self.fp = fp# image filapath
 		c = master['bg']
 		if c == None:
 			c = 'white'
-		self.function = function
+		self.callback = callback
 		self.img = create_img(fp = fp, scale = scale)
 		self.frame = Frame(
 			master,
@@ -152,11 +221,27 @@ class TransparentImageButton(Tk):
 
 		self.canvas.place(anchor = CENTER,relx=0.5,rely=0.5,relwidth=1,relheight=1)
 		self.image = self.canvas.create_image((10,5),image = self.img,anchor = NW)
-		self.canvas.tag_bind(self.image, "<Button-1>",self.function)
+		self.canvas.tag_bind(self.image, "<Button-1>",self.callback)
 
 '''ALL CLASSES BELOW THIS'''
 class Reroute(Tk):
+	"""
+	Re-routes pin connections. Mostly used for testing the Pin Widget, however
+	end-user might use this as a utility for organisation
+	"""
 	def __init__(self, **args):
+		"""
+			Initialize a reroute node
+			Args:
+				args (dict): A dictionary containing widget and packing parameters
+					WidgetParams(dict): dictionary containing widget parameters
+						master(TKinter Widget): Widget parent reference
+						width, height(int): Widget width and height
+						bg(str): Background Color. Valid examples are "red" and "#FFFFFF" (for white)
+					PackParams(dict): dictionary containing packing parameters
+						anchor(str, unused): anchor position
+						x, y(int): Widget pack position
+		"""
 		wp = args['WidgetParams']
 		pp = args["PackParams"]
 		self.f = Frame(
@@ -234,7 +319,10 @@ class Reroute(Tk):
 
 class Pin(Tk):
 	def __init__(self, **args):
-		#Note: kwargs has no depth
+		"""
+		Pin class is a core part of the application. It handles the communication between nodes.
+		Each pin will have five non-GUI variables, being default value, type, pin reference, color, and direction. Needs reworked.
+		"""
 		wp = args['WidgetParams']
 		self.img = create_img(fp = "GUI/pin-open.png", scale = 0.04)
 		self.fp = "test"
@@ -276,6 +364,9 @@ class Pin(Tk):
 
 class FileOpener(Tk):
 	def __init__(self, **args):
+		"""
+		FileOpener connects to either an API or a file and returns the contents of that request
+		"""
 		#Note: kwargs has no depth
 		wp = args['WidgetParams']
 		self.img = create_img(fp = "GUI/file_img.png", scale = 0.25)
@@ -322,6 +413,9 @@ class FileOpener(Tk):
 		self.l.update()
 
 def task():
+	"""
+	Called globally, important for keeping frames.
+	"""
 	global frames
 	frames+=1
 
@@ -329,6 +423,12 @@ def task():
 	window.after(1, task)
 class Application(Tk):
 	def __init__(self,master):
+		"""
+		Main application wrapper.
+
+		Args:
+			master(Tk): root
+		"""
 		#Menu Bar
 		self.menubar = Menu(master)
 		self.menubar = Menu(master)
@@ -354,9 +454,7 @@ class Application(Tk):
 		#toolbar menu
 		self.toolbar = Frame(master,padx=0,pady=0,highlightbackground=pallete['bordercolor'],bg=pallete['windowcolor'],highlightthickness=2)
 		self.toolbar.place(anchor = NW,relx=0.00,rely=0.148,relwidth=0.05,relheight=0.7)
-		self.FOButton = TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = self.create_FO,scale = 0.2)
-		#self.PinButton = TransparentImageButton(self.toolbar,relx = 0.5,rely = 0.15,anchor = N,function = self.create_pin,fp = "GUI/pin-open.png",scale=0.1)#create_pin needs changed to create_FO
-		#TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = self.create_FO)
+		self.FOButton = TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,callback = self.create_FO,scale = 0.2)
 		self.widgets = []
 		global viewport, data
 		viewport = self.c
