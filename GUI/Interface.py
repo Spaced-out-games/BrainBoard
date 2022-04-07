@@ -9,6 +9,21 @@ from general import create_img, keylist
 from pprint import pprint as pprint
 from functools import lru_cache
 #parent widget space to canvas position = widgetpos + relative pos
+viewport = None
+data = {
+	"currentline": None,
+	"focus": None,
+	"viewport": None,
+	"start": (None, None),
+	"wpos": (None, None),
+	"wparent": None,
+	"get_mouse": lambda event: (event.x, event.y),
+	"add_tuple": lambda x,y: (x[0]+y[0],x[1]+y[1]),
+	"get_parent": lambda widget: Widget.nametowidget(widget, name = widget.winfo_parent())
+}
+
+
+
 pallete = {
 "bordercolor": "#888888",
 "windowcolor": "#aaaaaa",
@@ -39,34 +54,45 @@ def on_drag_motion(event):
 
 def on_drag_start_pin(event):
 	w = event.widget
-	#Canvas.winfo_rootx
-	p = Widget.nametowidget(w, name = w.winfo_parent())
+	global data
+	p = data['get_parent'](w)
+	mouse = data['get_mouse'](event)
+	#set up some focus variables
+	#(data['viewport'].winfo_rootx(),data['viewport'].winfo_rooty())
+	data['start'] = mouse
+	data['focus'] = w
+	data['wpos'] = (p.winfo_rootx(),p.winfo_rooty())
+	data['wparent'] = p
 	
-	pos = (p.winfo_x(),p.winfo_y())#position of this pin
-	mouse = (event.x,event.y)
-	gp = Widget.nametowidget(Widget.nametowidget(w, name = w.winfo_parent()), name = Widget.nametowidget(w, name = w.winfo_parent()).winfo_parent())
-	w._mouse_start = mouse
-	w._widget_location = pos
-	w._grandparent = gp #this should be the background canvas
+	start = data['add_tuple'](data['start'], data['wpos'])
+	line = data['viewport'].create_line(start,start)
+
+	data['currentline'] = line
+
+
+
 def on_drag_motion_pin(event):
 	w = event.widget
-	gp = w._grandparent
+	global data
+	p = data['get_parent'](w)
 
+	start = data['add_tuple'](data['start'], data['wpos'])
 
+	end = data['add_tuple'](data['get_mouse'](event), data['wpos'])
 
-	start = (w._widget_location[0]+5, w._widget_location[1]+5)
-	end = (event.x + w._widget_location[0],event.y + w._widget_location[1])
-	if "_line" in dir(w):
-		gp.delete(w._line)
-	w._line = gp.create_line(start, end, fill = "black",width = 3)
+	data['viewport'].delete(data['currentline'])
+
+	start = (
+		start[0] - data['viewport'].winfo_rootx(),
+		start[1] - data['viewport'].winfo_rooty()
+	)
+
+	line = data['viewport'].create_line(start,end)
+
+	data['currentline'] = line
+
 def on_drag_end_pin(event):
-	w = event.widget
-	gp = w._grandparent
-	start = (w._widget_location[0]+5, w._widget_location[1]+5)
-	end = (event.x + w._widget_location[0],event.y + w._widget_location[1])
-	if "_line" in dir(w):
-		gp.delete(w._line)
-	w._line = gp.create_line(start, end, fill = "black",width = 3)
+	pass
 
 class TransparentImageButton(Tk):
 	def __init__(self, master, fp= "GUI/file_img.png", function = None,relx = 0, rely = 0, anchor = NW, width = 100, height = 100,scale = 0.1):
@@ -272,6 +298,16 @@ class Application(Tk):
 		#self.PinButton = TransparentImageButton(self.toolbar,relx = 0.5,rely = 0.15,anchor = N,function = self.create_pin,fp = "GUI/pin-open.png",scale=0.1)#create_pin needs changed to create_FO
 		#TransparentImageButton(self.toolbar,relx = 0.5,anchor = N,function = self.create_FO)
 		self.widgets = []
+		global viewport, data
+		viewport = self.c
+		data['viewport'] = viewport
+
+
+
+
+
+
+
 		self.create_reroute(event = None)
 		#"""
 		#"""
